@@ -2,6 +2,11 @@ __author__ = 'kalo'
 import serial
 import threading
 import queue
+import socket
+import sys
+from urllib import *
+import websocket
+import json
 
 
 class Events:
@@ -23,8 +28,8 @@ class SerialManager(threading.Thread):
 
     def __init__(self, mcu_serial_port, mcu_baud_rate, rfid_port, rfid_baud_rate, stop_event, in_queue, out_queue):
         threading.Thread.__init__(self)
-        self.mcu = serial.Serial(mcu_serial_port, mcu_baud_rate)
-        self.rfid = serial.Serial(rfid_port, rfid_baud_rate)
+        #self.mcu = serial.Serial(mcu_serial_port, mcu_baud_rate)
+        #self.rfid = serial.Serial(rfid_port, rfid_baud_rate)
         self.rfid_buffer = list()
         self.stop_event = stop_event
         self.in_queue = in_queue
@@ -87,10 +92,32 @@ class SerialManager(threading.Thread):
 
 
 class Manager():
-    def __init__(self):
+    def __init__(self, url):
         self.stop_event = threading.Event()
         self.to_serial = queue.Queue()
         self.from_serial = queue.Queue()
         self.serial_manager = SerialManager("/dev/ttyACM0", 9600, "/dev/ttyUSB0", 9600,
                                             self.stop_event,
                                             self.to_serial, self.from_serial)
+        self.server = websocket.WebSocketApp(url)
+        self.server.run_forever(sslopt={"cert_reqs": websocket.ssl.CERT_NONE})
+        self.server.send("asd".encode(encoding='UTF-8', errors='strict'))
+
+    HOSTNAME = '10.255.5.43'    # The remote host
+    PORT = 8080              # The same port as used by the server
+
+    def handshake(host, port):
+        u = urlopen("http://%s:%d/socket.io/1/" % (host, port))
+        if u.getcode() == 200:
+            response = u.readline()
+            (sid, hbtimeout, ctimeout, supported) = response.split(":")
+            supportedlist = supported.split(",")
+            if "websocket" in supportedlist:
+                return (sid, hbtimeout, ctimeout)
+            else:
+                raise TransportException()
+        else:
+            raise InvalidResponseException()
+
+man = Manager("http://10.255.5.43:8080")
+
