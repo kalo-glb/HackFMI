@@ -36,6 +36,8 @@ void setup()
 void return_error()
 {
   Serial.println('e');
+  new_pattern_recieved = 0;
+  count = 0;
 }
 
 int update_detection_buffer(int id, char color)
@@ -97,7 +99,10 @@ int get_detection_state(int id, char color)
 
 int any_other_detected(int id, char color)
 {
-  if('o' == color)id += 4;
+  if('o' == color)
+  {
+    id += 4;
+  }
   for(int i = 0; i < 8; i++)
   {
     if(i == id)
@@ -108,7 +113,7 @@ int any_other_detected(int id, char color)
   return 0;
 }
 
-void loop()
+/*void loop()
 {
   if(new_pattern_recieved == 0)
   {
@@ -149,12 +154,67 @@ void loop()
     }
   }
   
-  /*
+  
   for(int i = 0; i < 8; i++)
   {
-    Serial.print(detection_count[i]);
+    Serial.print(detection_state[i]);
     Serial.print(' ');
   }
-  */
-  Serial.println(count);
+  
+  Serial.println();
+  
+  if(count == 4)
+  {
+    count = 0;
+    new_pattern_recieved = 0;
+    Serial.println('4');
+  }
+}
+*/
+void loop()
+{
+  if(new_pattern_recieved == 0)
+  {
+    if(4 == Serial.available())
+    {
+      for(int i = 0; i < 4; i++)
+      {
+        pattern[i] = Serial.read();
+      }
+      count = 0;
+      new_pattern_recieved = 1;
+    }
+  }
+  
+  for(int i = 0; i < 4; i++)
+  {
+    update_detection_buffer(i, 'b');
+    update_detection_buffer(i, 'o');
+  }
+  
+  if((1 == new_pattern_recieved) && (count < 4))
+  {
+    if(detection_state[count] == 1)
+    {
+      if(pattern[count] == 'b')
+        count++;
+      else
+        return_error();
+    }
+    if(detection_state[count + 4] == 1)
+    {
+      if(pattern[count] == 'o')
+        count++;
+      else
+        return_error();
+    }
+    
+  }
+  if(count == 4)
+  {
+    count = 0;
+    new_pattern_recieved = 0;
+    Serial.println('4');
+  }
+  
 }

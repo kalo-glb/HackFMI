@@ -10,7 +10,7 @@ class WebComunication(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
-        self.init_server()
+        #self.init_server()
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.stop_event = stop_event
@@ -21,9 +21,9 @@ class WebComunication(threading.Thread):
         self.server = websocket.create_connection("ws://%s:%d/socket.io/1/websocket/%s" % (self.host, self.port, sid))
         print(self.server.recv())
         self.server.send("2::")
-        self.server.send('5:1::{"name":"start", "args":"system_ready"}')
-        print(self.server.recv())
-        print(self.server.recv())
+        #self.server.send('5:1::{"name":"system_ready", "args":"system_ready"}')
+        #print(self.server.recv())
+        #print(self.server.recv())
 
     def handshake(self, host, port):
         u = urlopen("http://%s:%d/socket.io/1/" % (host, port))
@@ -41,14 +41,25 @@ class WebComunication(threading.Thread):
     def run(self):
         while not self.stop_event.is_set():
             if not self.in_queue.empty():
-                self.server.send('5:1::{"name":"getPattern", "args":"%s"}' % self.in_queue.get(block=False))
-                self.wait_for_response = 2
-            if self.wait_for_response:
+                data = self.in_queue.get(block=False)
+                self.init_server()
+                print(str(data[1]))
+                self.server.send('5:1::{"name":"' + data[0] + '", "args":"' + str(data[1]) + '"}' )
+                if data[0] == "getPattern":
+                    self.wait_for_response = 2
+                elif data[0] == "end" or data[0] == "playerError":
+                    self.wait_for_response = 1
+                else:
+                    self.wait_for_response = 2
+            if 0 != self.wait_for_response:
                 self.wait_for_response -= 1
-                asd = self.server.recv()
-                print("log: %s" % asd)
-                if asd[0] == '3':
-                    pattern = asd.split(':')[-1]
+                recieved_data = self.server.recv()
+                print("log: %s" % recieved_data)
+                if recieved_data[0] == '3':
+                    pattern = recieved_data.split(':')[-1]
                     self.out_queue.put(pattern)
+
+                if self.wait_for_response == 0:
+                    self.server.close()
 
             time.sleep(0.001)

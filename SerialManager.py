@@ -1,5 +1,7 @@
+from pyatspi.appevent import EventType
+
 __author__ = 'kalo'
-from Events import Events
+from Events import Events, EventTypes
 import threading
 import serial
 import time
@@ -18,9 +20,11 @@ class SerialManager(threading.Thread):
         self.stop_event = stop_event
         self.in_queue = in_queue
         self.out_queue = out_queue
+        self.end_sent = False
 
     def set_sensor_pattern(self, pattern):
-        print("pattern = {}".format(pattern))
+        self.end_sent = False
+        #print("pattern = {}".format(pattern))
         self.mcu.write(pattern)
 
     def incoming_data_read(self):
@@ -48,21 +52,31 @@ class SerialManager(threading.Thread):
         self.out_queue.put(msg)
 
     def process_card_id(self, card_id):
-        self.write_to_manager(Events.rfid_event, card_id)
+        self.write_to_manager(EventTypes.rfid_event, card_id)
 
     def process_mcu_event(self, event):
-        self.write_to_manager(Events.mcu_event, event)
+        #print(event)
+        e = Events.error
+        if 'e' == event:
+            e = Events.player_error
+        elif '1' == event:
+            e = Events.player_start_labirinth
+        elif '4' == event and self.end_sent is False:
+            self.end_sent = True
+            e = Events.player_won
+
+        self.write_to_manager(EventTypes.mcu_event, e)
 
     def process_control_event(self, event):
-        pass
+        self.set_sensor_pattern(event)
 
     def run(self):
         while not self.stop_event.is_set():
             if self.mcu.inWaiting():
                 e = self.mcu.read()
-                #self.process_mcu_event(e)
+                self.process_mcu_event(e)
             if not self.in_queue.empty():
-                self.set_sensor_pattern(self.in_queue.get())
+                self.process_control_event(self.in_queue.get())
             if self.rfid.inWaiting():
                 char_buf = self.rfid.read()
                 if char_buf != self.__msg_end_char__:
@@ -74,7 +88,7 @@ class SerialManager(threading.Thread):
                 control_event = self.in_queue.get(block=False)
                 self.process_control_event(control_event)
 
-            time.sleep(0.001)
+            time.sleep(0.01)
 
         self.mcu.close()
         self.rfid.close()
