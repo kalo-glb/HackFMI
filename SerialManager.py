@@ -12,7 +12,7 @@ class SerialManager(threading.Thread):
 
     def __init__(self, mcu_serial_port, mcu_baud_rate, rfid_port, rfid_baud_rate, stop_event, in_queue, out_queue):
         threading.Thread.__init__(self)
-        #self.mcu = serial.Serial(mcu_serial_port, mcu_baud_rate)
+        self.mcu = serial.Serial(mcu_serial_port, mcu_baud_rate)
         self.rfid = serial.Serial(rfid_port, rfid_baud_rate)
         self.rfid_buffer = list()
         self.stop_event = stop_event
@@ -58,9 +58,9 @@ class SerialManager(threading.Thread):
 
     def run(self):
         while not self.stop_event.is_set():
-            # if self.mcu.inWaiting():
-            #     e = self.mcu.read()
-            #     self.process_mcu_event(e)
+            if self.mcu.inWaiting():
+                e = self.mcu.read()
+                self.process_mcu_event(e)
             if not self.in_queue.empty():
                 self.set_sensor_pattern(self.in_queue.get())
             if self.rfid.inWaiting():
