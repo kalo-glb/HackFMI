@@ -21,7 +21,7 @@ class SerialManager(threading.Thread):
 
     def set_sensor_pattern(self, pattern):
         print("pattern = {}".format(pattern))
-        #self.mcu.write(pattern)
+        self.mcu.write(pattern)
 
     def incoming_data_read(self):
         card_id = ""
@@ -60,7 +60,7 @@ class SerialManager(threading.Thread):
         while not self.stop_event.is_set():
             if self.mcu.inWaiting():
                 e = self.mcu.read()
-                self.process_mcu_event(e)
+                #self.process_mcu_event(e)
             if not self.in_queue.empty():
                 self.set_sensor_pattern(self.in_queue.get())
             if self.rfid.inWaiting():
@@ -76,5 +76,5 @@ class SerialManager(threading.Thread):
 
             time.sleep(0.001)
 
-        #self.mcu.close()
+        self.mcu.close()
         self.rfid.close()

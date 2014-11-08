@@ -19,7 +19,7 @@ class Manager():
         self.serial_manager = SerialManager("/dev/ttyACM0", 9600, "/dev/ttyUSB0", 9600,
                                             self.stop_event,
                                             self.to_serial, self.from_serial)
-        self.web_com = WebComunication("10.0.202.13", 8080, self.to_web, self.from_web, self.stop_event)
+        self.web_com = WebComunication(host, port, self.to_web, self.from_web, self.stop_event)
 
     def run(self):
         self.web_com.start()

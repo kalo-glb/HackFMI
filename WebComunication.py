@@ -46,7 +46,7 @@ class WebComunication(threading.Thread):
             if self.wait_for_response:
                 self.wait_for_response -= 1
                 asd = self.server.recv()
-                #print("log: %s" % asd)
+                print("log: %s" % asd)
                 if asd[0] == '3':
                     pattern = asd.split(':')[-1]
                     self.out_queue.put(pattern)
