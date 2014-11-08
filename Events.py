@@ -2,7 +2,7 @@ __author__ = 'kalo'
 
 
 class Events:
-    set_pattern = 0
+    set_pattern = 9
     start_game = 1
     end_game = 2
     first_sensor_hit = 3
