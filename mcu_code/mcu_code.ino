@@ -30,7 +30,18 @@ void setup()
   pinMode(red_led, OUTPUT);
   pinMode(white_led, OUTPUT);
   
+  digitalWrite(white_led, HIGH);
+  digitalWrite(red_led, HIGH);
+  
   Serial.begin(9600);
+}
+
+void return_success()
+{
+  count = 0;
+  new_pattern_recieved = 0;
+  Serial.println('4');
+  digitalWrite(white_led, LOW);
 }
 
 void return_error()
@@ -38,6 +49,7 @@ void return_error()
   Serial.println('e');
   new_pattern_recieved = 0;
   count = 0;
+  digitalWrite(red_led, LOW);
 }
 
 int update_detection_buffer(int id, char color)
@@ -113,64 +125,7 @@ int any_other_detected(int id, char color)
   return 0;
 }
 
-/*void loop()
-{
-  if(new_pattern_recieved == 0)
-  {
-    if(4 == Serial.available())
-    {
-      for(int i = 0; i < 4; i++)
-      {
-        pattern[i] = Serial.read();
-      }
-      count = 0;
-      new_pattern_recieved = 1;
-    }
-  }
-  
-  for(int i = 0; i < 4; i++)
-  {
-    update_detection_buffer(i, 'b');
-    update_detection_buffer(i, 'o');
-  }
-  
-  if((1 == new_pattern_recieved) && (count < 4))
-  {
-    if(!lock)
-    {
-      if(any_other_detected(count, pattern[count]))
-      {
-        return_error();
-      }
-      else if(get_detection_state(count, pattern[count]))
-      {
-        count++;
-        lock = !lock;
-      }
-    }
-    else if(!(get_detection_state((count - 1), pattern[count - 1])))
-    {
-      lock = !lock;
-    }
-  }
-  
-  
-  for(int i = 0; i < 8; i++)
-  {
-    Serial.print(detection_state[i]);
-    Serial.print(' ');
-  }
-  
-  Serial.println();
-  
-  if(count == 4)
-  {
-    count = 0;
-    new_pattern_recieved = 0;
-    Serial.println('4');
-  }
-}
-*/
+
 void loop()
 {
   if(new_pattern_recieved == 0)
@@ -181,8 +136,12 @@ void loop()
       {
         pattern[i] = Serial.read();
       }
+      
       count = 0;
       new_pattern_recieved = 1;
+      
+      digitalWrite(white_led, HIGH);
+      digitalWrite(red_led, HIGH);
     }
   }
   
@@ -212,9 +171,7 @@ void loop()
   }
   if(count == 4)
   {
-    count = 0;
-    new_pattern_recieved = 0;
-    Serial.println('4');
+    return_success();
   }
   
 }
