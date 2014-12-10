@@ -48,6 +48,6 @@ class Manager():
             time.sleep(0.01)
 
 
-man = Manager("10.0.202.13", 8080)
+man = Manager("192.168.0.101", 8080)
 man.run()
 

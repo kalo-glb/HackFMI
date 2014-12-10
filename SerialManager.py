@@ -1,5 +1,3 @@
-from pyatspi.appevent import EventType
-
 __author__ = 'kalo'
 from Events import Events, EventTypes
 import threading

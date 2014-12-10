@@ -1,10 +1,11 @@
 #include <Servo.h>
 
-int blue_sensors[] = {A0, A2, A3, A5};
+int blue_sensors[] = {A5, A3, A2, A0};
 int orange_sensors[] = {2, 4, 7, 8};
 #define red_led 5
 #define white_led 6
 #define detection_treshold 20
+#define speaker 9
 
 int detection_count[8];
 int detection_state[8];
@@ -25,7 +26,7 @@ void setup()
   {
     pinMode(blue_sensors[i], INPUT);
     pinMode(orange_sensors[i], INPUT);
-    //digitalWrite(blue_sensors[i], HIGH);
+    digitalWrite(blue_sensors[i], HIGH);
     //digitalWrite(orange_sensors[i], HIGH);
   }
   
@@ -45,8 +46,8 @@ void setup()
   s3.attach(11);
   
   //63 143 110
-  s1.write(63);
-  s2.write(143);
+  s1.write(118);
+  s2.write(50);
   s3.write(35);
   
   Serial.begin(9600);
@@ -78,15 +79,15 @@ void control_box(int box_number, int isOpening)
   {
     case 1:
     {
-      from_pos = 63;
-      to_pos = 118;
+      from_pos = 118;
+      to_pos = 59;
       servo = s1;
       break;
     }
     case 2:
     {
-      from_pos = 143;
-      to_pos = 50;
+      from_pos = 50;
+      to_pos = 143;
       servo = s2;
       break;
     }
@@ -210,6 +211,7 @@ void loop()
       if(1 == servo_state[i])
       {
         control_box(i+1, 0);
+        servo_state[i] = 0;
       }
     }
     
