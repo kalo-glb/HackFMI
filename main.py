@@ -1,12 +1,10 @@
 __author__ = 'kalo'
 from SerialManager import SerialManager
 from Events import Events, EventTypes
-from  WebComunication import WebComunication
+from WebComunication import WebComunication
 import threading
 import Queue
 import time
-from urllib import *
-import websocket
 
 
 class Manager():

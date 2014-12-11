@@ -10,7 +10,6 @@ class WebComunication(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
-        #self.init_server()
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.stop_event = stop_event
@@ -21,9 +20,6 @@ class WebComunication(threading.Thread):
         self.server = websocket.create_connection("ws://%s:%d/socket.io/1/websocket/%s" % (self.host, self.port, sid))
         print(self.server.recv())
         self.server.send("2::")
-        #self.server.send('5:1::{"name":"system_ready", "args":"system_ready"}')
-        #print(self.server.recv())
-        #print(self.server.recv())
 
     def handshake(self, host, port):
         u = urlopen("http://%s:%d/socket.io/1/" % (host, port))
