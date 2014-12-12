@@ -22,7 +22,6 @@ class SerialManager(threading.Thread):
 
     def set_sensor_pattern(self, pattern):
         self.end_sent = False
-        #print("pattern = {}".format(pattern))
         self.mcu.write(pattern)
 
     def incoming_data_read(self):
@@ -53,7 +52,6 @@ class SerialManager(threading.Thread):
         self.write_to_manager(EventTypes.rfid_event, card_id)
 
     def process_mcu_event(self, event):
-        #print(event)
         e = Events.error
         if 'e' == event:
             e = Events.player_error
